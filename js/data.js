@@ -147,28 +147,54 @@ window.CANDIDATES = [
   {
     id: "catarina", name: "Catarina Fernandes", gender: "F",
     stage: "2º período",
-    tagline: "Atua em projetos na Júnior e quer aprender do zero",
-    look: { hair: "bun", hairColor: "#17171F", outfit: "#C9B6FF", glasses: false, prop: "clipboard" },
-    src: ["Entrevista Catarina (áudio transcrito)", "Ata de entrevista Catarina Fernandes"],
+    tagline: "Lidera projetos na Consultoria Júnior e quer aprender IA do zero",
+    look: { hair: "pony", hairColor: "#3A1A9E", outfit: "#6015F5", glasses: false, prop: "clipboard" },
+    src: ["Ata de Entrevista - Processo Seletivo SKEM.AI - Catarina Fernandes (PDF)"],
     resume: {
-      perfil: ["2º período. Disse não saber nada de IA e pediu para aprender desde os fundamentos.", "Aprende melhor estudando sozinha e vendo; precisa de um pouco mais de tempo para assimilar."],
-      atividades: ["Consultoria Júnior, em projetos (já passou pelo RH)", "Hope"],
+      perfil: ["2º período. Atua como diretora/head de projetos na Consultoria Júnior.", "Valoriza as ligas porque aprende com a prática e com a troca entre os membros.", "Aprende melhor estudando sozinha, depois de uma orientação inicial."],
+      atividades: ["Diretora/head de projetos na Consultoria Júnior"],
+      ia: ["Não se considera familiarizada com IA e quer aprender desde os fundamentos", "Quer aprender a escrever bons prompts e entender como a IA funciona", "Vê tarefas da Júnior que ficariam mais rápidas com IA, mas entende a IA como apoio e não como solução isolada"],
+      disp: "Tardes de quarta e sexta livres, os dias previstos para o clube. Consegue conciliar com a Júnior e topa compartilhar conhecimento."
+    },
+    scores: { pro: 8.5, learn: 8.5, interest: 8.0 },
+    why: {
+      pro: "Lidera projetos na Júnior, procura ajuda quando não sabe e quer aplicar o que aprender no trabalho.",
+      learn: "Reconhece com honestidade o próprio nível e quer entender os fundamentos, não só usar a ferramenta.",
+      interest: "Motivação clara e ligada à carreira e à Júnior, mas sem uma área de IA específica ainda."
+    },
+    summary: [
+      "Entra para aprender IA desde a base, sabendo que a tecnologia é ferramenta de apoio ao trabalho.",
+      "Tem experiência de liderança e gestão de projetos na Consultoria Júnior e quer aplicá-la com IA.",
+      "Aprende melhor sozinha depois de uma explicação inicial, e busca ajuda de quem sabe mais.",
+      "Topa compartilhar o que aprende e tem as tardes de quarta e sexta livres."
+    ],
+    attention: ["Sem experiência prévia em IA", "Ainda sem uma área de IA de preferência"]
+  },
+  {
+    id: "rebecca", name: "Rebecca", gender: "F",
+    stage: "2º período",
+    tagline: "Entrou para aprender e aprende fazendo",
+    look: { hair: "bun", hairColor: "#17171F", outfit: "#C9B6FF", glasses: false, prop: "palette" },
+    src: ["Entrevista Rebecca (áudio transcrito; o arquivo estava nomeado como Catarina)"],
+    resume: {
+      perfil: ["2º período. Entrou na Consultoria Júnior no semestre passado, em Projetos, e já passou pelo RH.", "Foi convidada pela Karina e disse que não sabe nada de IA, mas quer entrar para aprender.", "É visual: só ouvindo não pega bem, estuda sozinha e aprende fazendo. Demora um pouco mais para assimilar."],
+      atividades: ["Consultoria Júnior, em projetos", "Hope"],
       ia: ["Usa Claude e ChatGPT no básico", "Conhece pouco de prompt e não usa outras ferramentas"],
-      disp: "Quartas e sextas à tarde livres. Aceita compartilhar conhecimento no clube de estudos."
+      disp: "Júnior tem reuniões ao meio-dia e às 10h de quarta, mas diz que dá um jeito. Tem aula na sexta, não tem na segunda."
     },
     scores: { pro: 7.5, learn: 8.5, interest: 7.5 },
     why: {
       pro: "Atua em projetos na Júnior e está em duas organizações; pediu lembretes porque às vezes atrasa.",
-      learn: "Reconhece o próprio nível com honestidade e quer entender como a IA funciona, não só usar.",
-      interest: "Quer aprender e enxerga IA em qualquer carreira, mas sem um tema específico ainda."
+      learn: "Sabe como aprende melhor (vendo e fazendo) e quer entrar justamente para aprender do zero.",
+      interest: "Acha o tema muito importante e quer aprender, mas sem um tema específico e sem conhecer ninguém da área."
     },
     summary: [
-      "Entrou no clube para aprender do zero; entende que a IA é uma ferramenta de apoio e não uma solução isolada.",
-      "Quer aprender a escrever bons prompts e a aplicar IA nas tarefas da Júnior.",
-      "Procura ajuda quando não sabe e topa compartilhar o que aprende.",
-      "Se descreve como organizada, com um leve problema de atraso."
+      "Entrou no clube para aprender do zero; foi incentivada pela Karina a tentar mesmo sem saber nada.",
+      "Aprende vendo e fazendo; precisa estudar sozinha o que não entende só ouvindo.",
+      "Atua na Júnior e na Hope e acredita lidar bem com os horários.",
+      "Se descreve como organizada, com um leve problema de atraso e esquecimento, e pede lembretes."
     ],
-    attention: ["Sem experiência prévia em IA", "Pediu lembretes para horários"]
+    attention: ["Sem experiência prévia em IA", "Pediu lembretes para horários", "Reuniões da Júnior ao meio-dia e às 10h de quarta"]
   },
   {
     id: "felipe", name: "Felipe", gender: "M",
@@ -353,6 +379,32 @@ window.CANDIDATES = [
     attention: ["Quarta à tarde ocupada, sexta com cálculo até 17h", "Ainda sem foco definido em IA"]
   },
   {
+    id: "matheusm", name: "Matheus Malafaia", gender: "M",
+    stage: "6º período",
+    tagline: "Usa IA todo dia para imagem, vídeo e TikTok Shop",
+    look: { hair: "side", hairColor: "#17171F", outfit: "#7F57FF", glasses: false, prop: "robot" },
+    src: ["Ata de Entrevista - Processo Seletivo SKEM.AI - Matheus Malafaia (PDF)"],
+    resume: {
+      perfil: ["6º período, com rotina mais leve e mais tempo livre agora.", "Não faz estágio em BH; trabalha com a mãe, que é arquiteta, em Lagoa Santa, e vai para lá depois das aulas. Explora TikTok Shop e criação de conteúdo no tempo livre.", "Passou a se deslocar de carro, o que facilita ficar na faculdade para atividades extras."],
+      atividades: ["Já foi convidado para a Consultoria Júnior, mas não conseguiu participar por causa do deslocamento entre Várzea e a faculdade", "Passou por um grupo de Finanças; saiu por falta de clareza nas entregas e reuniões à noite"],
+      ia: ["Usa IA diariamente: imagens de projetos de arquitetura, vídeos, roteiros e personagens", "Cria modelos virtuais para mostrar produtos no TikTok Shop", "Faz agentes e configurações por prompt; migrou do Gemini para o Flow", "Fez curso de full stack e projetos com CMS, mas ainda não programa IA em Python"],
+      disp: "Quartas e sextas, ao meio-dia ou à tarde, compatíveis, depois das aulas. Noite era o que dificultava antes, pelo deslocamento. Segue para Lagoa Santa depois da faculdade."
+    },
+    scores: { pro: 7.5, learn: 9.0, interest: 8.5 },
+    why: {
+      pro: "Toca projetos próprios com IA (conteúdo, TikTok Shop), mas desistiu de associações anteriores por rotina e falta de clareza.",
+      learn: "Quer entender os bastidores da IA, aprende na prática e já se inscreveu no curso de machine learning.",
+      interest: "Usa IA com frequência e quer sair do prompt isolado para agentes, automação e integração de ferramentas."
+    },
+    summary: [
+      "Usa IA todo dia em arquitetura, vídeo, TikTok e TikTok Shop, e quer ir além de prompts isolados.",
+      "Quer aprender Python, agentes, automação e como conectar ferramentas e serviços.",
+      "Aprende por tentativa e erro; a disciplina teórica de IA e machine learning não lhe rende tanto.",
+      "Agora tem rotina e deslocamento mais livres para participar, e já está na lista do curso da Fisher."
+    ],
+    attention: ["Deslocamento: vai para Lagoa Santa depois das aulas", "Saiu de associações anteriores por rotina e horário", "Ainda não programa IA em Python"]
+  },
+  {
     id: "matheusr", name: "Matheus Rodrigues", gender: "M",
     stage: "5º período, Administração",
     tagline: "Quer criar agentes de IA",
@@ -481,5 +533,57 @@ window.CANDIDATES = [
       "Alinhamento claro entre o objetivo do clube e o interesse dele."
     ],
     attention: ["Sem projeto de IA em andamento"]
+  },
+  {
+    id: "ana", name: "Ana Victoria Manini", gender: "F",
+    stage: "Estudante, em várias associações",
+    tagline: "Transforma o Claude em máquina de capas e reels",
+    look: { hair: "long", hairColor: "#3A1A9E", outfit: "#A98BFF", glasses: false, prop: "play" },
+    src: ["Entrevista Ana Victoria Manini (áudio transcrito)"],
+    resume: {
+      perfil: ["Veio de Engenharia de Software no Marista e se define como proativa.", "Representou o Marista na feira de engenharia da UFMG com um projeto feito com duas colegas de Fisioterapia e Engenharia."],
+      atividades: ["Marketing na Empresa Júnior", "Diretoria da Atlética", "Ateliê; o clube de IA seria a quarta associação"],
+      ia: ["Usa Claude e ChatGPT o tempo todo: ideias de vídeo, reels, capas e prompts", "É quem faz as capas dos vídeos na Júnior", "Já programou no Replit e fez um jogo na engenharia", "Diz que a equipe automatizou tarefas que levavam uma manhã inteira"],
+      disp: "Sextas às 10h e ao meio-dia sem problema. Quarta é incerta: tem folga à tarde na Júnior, mas a resposta não foi firme. Júnior tem reunião quinta ao meio-dia e marketing na terça às 10h."
+    },
+    scores: { pro: 9.0, learn: 8.5, interest: 8.0 },
+    why: {
+      pro: "Atua em várias associações ao mesmo tempo, já entregou projeto fora da faculdade e se descreve como alguém que resolve problema.",
+      learn: "Quer entender como usar IA direito, já programou e se inscreveu no curso de machine learning.",
+      interest: "Usa IA todo dia no trabalho de marketing. A motivação de entrada é mais geral: acha que quem não entender IA fica para trás."
+    },
+    summary: [
+      "Usa IA todo dia no marketing da Júnior: ideias de vídeo, capas, prompts e automação de tarefas repetitivas.",
+      "Já tem experiência com programação (Replit) e projeto de engenharia premiado com a ida à feira da UFMG.",
+      "Quer entrar para aprender a usar IA do jeito certo e trocar conhecimento com os organizadores.",
+      "Já se inscreveu no curso de machine learning e topa o clube de estudos."
+    ],
+    attention: ["Já participa de três associações", "Disponibilidade de quarta não ficou clara", "Reuniões fixas na Júnior (terça e quinta)"]
+  },
+  {
+    id: "arthurp", name: "Arthur Pinheiro", gender: "M",
+    stage: "1º período",
+    tagline: "Autodidata que está montando o próprio app",
+    look: { hair: "short", hairColor: "#17171F", outfit: "#26068D", glasses: false, prop: "code" },
+    src: ["Entrevista Arthur Pinheiro, primeiro período (áudio transcrito)"],
+    resume: {
+      perfil: ["Está no 1º período e é autodidata em programação, sem formação na área.", "Forte em JavaScript e desenvolvimento web, conhece Node.js e começou a olhar Rust."],
+      atividades: ["Trabalhou em uma plataforma de vendas de cursos e checkout; saiu no fim do ano passado", "Faz alguns trabalhos freelance de vez em quando"],
+      ia: ["Aprendeu a programar com o FreeCodeCamp e depois com o Cursor, pedindo para a IA explicar o que não entendia", "Constrói uma ferramenta para montar apps web arrastando componentes e ligando fluxos em grafo; já refez projetos que não deram certo", "Pretende deixar o projeto open source"],
+      disp: "Quarta à tarde, logo depois da aula. Sexta às 10h ou ao meio-dia; à tarde não, por causa da aula de cálculo."
+    },
+    scores: { pro: 8.5, learn: 9.5, interest: 8.5 },
+    why: {
+      pro: "Aprendeu sozinho, trabalhou na área e tem projetos próprios em andamento. Se comprometeu a avisar cedo quando não puder ir.",
+      learn: "Estuda por conta própria, usa a IA como professora e refaz projetos até acertar. Está aprendendo Rust.",
+      interest: "Procurava um grupo de tecnologia na faculdade e demonstrou interesse na hora em que soube do clube."
+    },
+    summary: [
+      "Tem o perfil mais técnico dos entrevistados: JavaScript, Node.js e web, aprendido por conta própria.",
+      "Usa IA para programar e para aprender, e já constrói uma ferramenta de arrastar componentes e fluxos.",
+      "Topa ensinar o que sabe nos encontros de estudo e quer abrir o projeto como open source.",
+      "Disponível na quarta à tarde e na sexta de manhã ou ao meio-dia; tem freelance ocasional."
+    ],
+    attention: ["Sextas à tarde não, por causa do cálculo", "Freelances pontuais", "Está no 1º período"]
   }
 ];

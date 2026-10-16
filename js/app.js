@@ -13,18 +13,25 @@
 
   /* ---------------- estado ---------------- */
   var KEY = "skema-selecao-v1";
-  var state = { seats: {}, config: { F: 4, M: 6 }, filter: "all", sort: "az", sound: true, selected: null };
+  var state = { seats: {}, out: {}, view: "in", config: { F: 4, M: 6 }, filter: "all", sort: "az", sound: true, selected: null };
+  var LV = {
+    T: { label: "Talvez fora", mood: 1, sub: "Ficou perto. Pode entrar se abrir vaga." },
+    E: { label: "Meio fora", mood: 2, sub: "Faltou bastante para entrar agora." },
+    U: { label: "Muito fora", mood: 3, sub: "Pouco alinhado com o que o clube pede." }
+  };
+  var LVS = ["T", "E", "U"];
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || "null");
     if (saved && saved.config) {
       state.config = saved.config;
       state.seats = saved.seats || {};
+      state.out = saved.out || {};
       state.sound = saved.sound !== false;
       state.selected = saved.selected || null;
     }
   } catch (e) {}
   function persist() {
-    try { localStorage.setItem(KEY, JSON.stringify({ seats: state.seats, config: state.config, sound: state.sound, selected: state.selected })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ seats: state.seats, out: state.out, config: state.config, sound: state.sound, selected: state.selected })); } catch (e) {}
   }
 
   function slotIds() {
@@ -40,10 +47,43 @@
       if (!byId[id] || !valid[s] || used[s] || s[0] !== byId[id].gender) delete state.seats[id]; else used[s] = id;
     });
   }
+  function isOut(slot) { return LVS.indexOf(slot[0]) >= 0; }
   function occupant(slot) {
-    for (var id in state.seats) if (state.seats[id] === slot) return id;
+    var m = isOut(slot) ? state.out : state.seats;
+    for (var id in m) if (m[id] === slot) return id;
     return null;
   }
+  /* sala de fora: cadeiras = candidatos - cadeiras do clube (4/3/3 para 10 de fora) */
+  function outCfg() {
+    var n = Math.max(0, C.length - totalChairs());
+    var t = Math.ceil(n * 0.4), e = Math.floor(n * 0.3);
+    return { T: t, E: e, U: n - t - e, total: n };
+  }
+  function outIds() {
+    var cfg = outCfg(), out = [];
+    LVS.forEach(function (l) { for (var i = 0; i < cfg[l]; i++) out.push(l + i); });
+    return out;
+  }
+  function sanitizeOut() {
+    var ids = outIds(), valid = {}; ids.forEach(function (s) { valid[s] = true; });
+    var used = {}, lost = [];
+    Object.keys(state.out).forEach(function (id) {
+      var s = state.out[id];
+      if (!byId[id] || state.seats[id]) { delete state.out[id]; return; }
+      if (!valid[s] || used[s]) { delete state.out[id]; lost.push({ id: id, lv: s ? s[0] : "T" }); return; }
+      used[s] = id;
+    });
+    lost.forEach(function (o) {
+      var order = [o.lv].concat(LVS.filter(function (l) { return l !== o.lv; }));
+      for (var k = 0; k < order.length; k++) {
+        var free = ids.filter(function (s) { return s[0] === order[k] && !used[s]; })[0];
+        if (free) { used[free] = o.id; state.out[o.id] = free; break; }
+      }
+    });
+  }
+  function outCount(l) { return Object.keys(state.out).filter(function (id) { return !l || state.out[id][0] === l; }).length; }
+  function freeOut(l) { var n = outCfg()[l]; for (var i = 0; i < n; i++) if (!occupant(l + i)) return l + i; return null; }
+  function isDecided(c) { return !!state.seats[c.id] || !!state.out[c.id]; }
   function seatedCount(g) {
     return Object.keys(state.seats).filter(function (id) { return !g || byId[id].gender === g; }).length;
   }
@@ -52,12 +92,13 @@
     for (var i = 0; i < state.config[g]; i++) if (!occupant(g + i)) return g + i;
     return null;
   }
-  function slotLabel(slot) { return "Cadeira " + (parseInt(slot.slice(1), 10) + 1) + " das " + GNAME[slot[0]]; }
+  function slotLabel(slot) { if (isOut(slot)) return "Cadeira " + (parseInt(slot.slice(1), 10) + 1) + " (" + LV[slot[0]].label.toLowerCase() + ")"; return "Cadeira " + (parseInt(slot.slice(1), 10) + 1) + " das " + GNAME[slot[0]]; }
 
   function visibleList() {
     var list = C.filter(function (c) {
-      if (state.filter === "wait") return !state.seats[c.id];
+      if (state.filter === "wait") return !isDecided(c);
       if (state.filter === "in") return !!state.seats[c.id];
+      if (state.filter === "out") return !!state.out[c.id];
       return true;
     });
     list.sort(function (a, b) {
@@ -73,10 +114,10 @@
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
       var t = actx.currentTime;
-      var notes = kind === "bad" ? [220, 165] : kind === "done" ? [523, 659, 784, 1046] : [392, 587];
+      var notes = kind === "sad" ? [330, 262, 196] : kind === "bad" ? [220, 165] : kind === "done" ? [523, 659, 784, 1046] : [392, 587];
       notes.forEach(function (f, i) {
         var o = actx.createOscillator(), g = actx.createGain();
-        o.type = kind === "bad" ? "sawtooth" : "triangle"; o.frequency.value = f;
+        o.type = kind === "bad" ? "sawtooth" : kind === "sad" ? "sine" : "triangle"; o.frequency.value = f;
         g.gain.setValueAtTime(0.0001, t + i * 0.09);
         g.gain.exponentialRampToValueAtTime(0.16, t + i * 0.09 + 0.02);
         g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.09 + 0.22);
@@ -135,7 +176,13 @@
   /* ---------------- topo ---------------- */
   $("#logo").src = window.LOGO_DATA;
   function renderCounters() {
-    var groups = [
+    var oc = outCfg();
+    var groups = state.view === "out" ? [
+      { label: "Talvez fora", n: outCount("T"), t: oc.T },
+      { label: "Meio fora", n: outCount("E"), t: oc.E },
+      { label: "Muito fora", n: outCount("U"), t: oc.U },
+      { label: "Fora", n: outCount(), t: oc.total }
+    ] : [
       { k: "F", label: "Meninas", n: seatedCount("F"), t: state.config.F },
       { k: "M", label: "Meninos", n: seatedCount("M"), t: state.config.M },
       { k: "T", label: "Turma", n: seatedCount(), t: totalChairs() }
@@ -147,15 +194,19 @@
     var s = $("#btnSound"); s.innerHTML = state.sound ? ICO.on : ICO.off;
     s.setAttribute("aria-pressed", String(state.sound)); s.setAttribute("aria-label", state.sound ? "Som ligado" : "Som desligado");
     $("#btnPdf").disabled = seatedCount() === 0;
+    var bo = $("#btnOut"), isOutV = state.view === "out";
+    bo.setAttribute("aria-pressed", String(isOutV));
+    bo.querySelector("span").textContent = isOutV ? "Voltar ao clube" : "Sala de fora do clube";
+    document.body.classList.toggle("view-out", isOutV);
   }
 
   /* ---------------- fila ---------------- */
   function renderQueue() {
     var list = visibleList();
     $("#queue").innerHTML = list.length ? list.map(function (c) {
-      var inn = !!state.seats[c.id];
-      return '<button type="button" class="qi' + (c.id === state.selected ? " sel" : "") + (inn ? " in" : "") + '" data-id="' + c.id + '" title="' + esc(c.name) + ' - nota ' + c.total + '">' +
-        '<span class="gdot">' + c.gender + '</span><span class="tick">' + ICO.tick + '</span>' +
+      var inn = !!state.seats[c.id], ot = state.out[c.id];
+      return '<button type="button" class="qi' + (c.id === state.selected ? " sel" : "") + (inn ? " in" : "") + (ot ? " outc lv" + ot[0] : "") + '" data-id="' + c.id + '" title="' + esc(c.name) + ' - nota ' + c.total + '">' +
+        '<span class="gdot">' + c.gender + '</span><span class="tick">' + ICO.tick + '</span><span class="xmark">×</span>' +
         '<span class="av">' + window.dollSVG(c, "head") + '</span><span class="nm">' + esc(c.name.split(" ")[0] + (c.name.split(" ")[1] && /^Matheus|^Arthur/.test(c.name) ? " " + c.name.split(" ")[1][0] + "." : "")) + '</span><span class="sc">' + c.total + "</span></button>";
     }).join("") : '<p style="color:var(--mist);font-size:.85rem;padding:14px">Nenhum candidato neste filtro.</p>';
     var sel = $(".qi.sel", $("#queue"));
@@ -169,7 +220,7 @@
   function renderPanel(animate) {
     var c = byId[state.selected] || C[0]; state.selected = c.id;
     var list = visibleList(); var pos = list.findIndex(function (x) { return x.id === c.id; });
-    var seat = state.seats[c.id];
+    var seat = state.seats[c.id], outS = state.out[c.id], outV = state.view === "out";
     var posTxt = pos >= 0 ? "Candidato " + (pos + 1) + " de " + list.length : "Candidato";
     var crit = window.CRITERIA.map(function (k) {
       var v = c.scores[k.key];
@@ -181,15 +232,13 @@
       '<button class="nav" type="button" data-nav="1" aria-label="Próximo candidato">' + ICO.next + '</button></div>' +
       '<div class="pscroll"><div class="pgrid' + (animate ? " swap" : "") + '">' +
       '<div class="dollcol">' +
-        '<div class="stage' + (seat ? " seated" : "") + '" ' + (seat ? "" : 'data-drag="stage" ') + 'data-id="' + c.id + '" aria-label="Bonequinho de ' + esc(c.name) + '">' +
-          '<span class="grab">' + (seat ? "Já está sentado(a)" : "Arraste até uma cadeira") + "</span>" + window.dollSVG(c, "stand") + "</div>" +
-        (seat
-          ? '<button class="btn" type="button" data-act="unseat">Tirar da cadeira</button><p class="legend">' + slotLabel(seat) + "</p>"
-          : '<button class="btn primary" type="button" data-act="seat">' + ICO.chair.replace("<svg", '<svg width="17" height="17"') + 'Sentar na cadeira</button><p class="legend">Ou arraste o bonequinho com o mouse ou o dedo.</p>') +
+        '<div class="stage' + (seat ? " seated" : "") + (outS ? " outd" : "") + '" ' + (seat ? "" : 'data-drag="stage" ') + 'data-id="' + c.id + '" aria-label="Bonequinho de ' + esc(c.name) + '">' +
+          '<span class="grab">' + (seat ? "Já está dentro do clube" : outS ? LV[outS[0]].label : outV ? "Arraste até uma cadeira de fora" : "Arraste até uma cadeira") + "</span>" + window.dollSVG(c, "stand", "", outS ? { level: LV[outS[0]].mood } : null) + "</div>" +
+        actionsHtml(c, seat, outS, outV) +
         '<div class="superpower"><b>O QUE TEM NA MÃO</b>' + esc(c.tagline) + "</div>" +
       "</div>" +
       '<div class="dossier">' +
-        '<div class="idrow"><div><h2>' + esc(c.name) + '</h2><p class="sub">' + esc(c.stage) + '</p><span class="gtag">' + (c.gender === "F" ? "Cadeira das meninas" : "Cadeira dos meninos") + '</span></div>' +
+        '<div class="idrow"><div><h2>' + esc(c.name) + '</h2><p class="sub">' + esc(c.stage) + '</p><span class="gtag">' + (c.gender === "F" ? "Cadeira das meninas" : "Cadeira dos meninos") + '</span>' + (seat ? ' <span class="gtag in">Dentro do clube</span>' : outS ? ' <span class="gtag outl lv' + outS[0] + '">' + LV[outS[0]].label + '</span>' : '') + '</div>' +
           '<div class="ring" aria-label="Pontuação ' + c.total + ' de 100"><svg viewBox="0 0 104 104"><circle class="bg" cx="52" cy="52" r="46"/><circle class="fg" cx="52" cy="52" r="46" data-p="' + c.total + '"/></svg><div class="v"><b data-n="' + c.total + '">0</b><small>de 100</small></div></div></div>' +
         '<div class="sec"><h3>Currículo da entrevista</h3><div class="cv">' +
           '<div class="cvb"><h4>Perfil</h4>' + ul(c.resume.perfil) + "</div>" +
@@ -211,6 +260,20 @@
       var n = $(".ring [data-n]"); if (n) countTo(n, +n.dataset.n);
     }); });
   }
+  function actionsHtml(c, seat, outS, outV) {
+    if (!outV) {
+      return seat
+        ? '<button class="btn" type="button" data-act="unseat">Tirar da cadeira</button><p class="legend">' + slotLabel(seat) + "</p>"
+        : '<button class="btn primary" type="button" data-act="seat">' + ICO.chair.replace("<svg", '<svg width="17" height="17"') + 'Sentar na cadeira</button><p class="legend">Ou arraste o bonequinho com o mouse ou o dedo.' + (outS ? " Hoje está em: " + LV[outS[0]].label.toLowerCase() + "." : "") + "</p>";
+    }
+    if (seat) return '<p class="legend">Esta pessoa está sentada dentro do clube. A escolha original continua valendo; a sala de fora é só para quem não sentou.</p>';
+    var btns = LVS.map(function (l) {
+      var free = freeOut(l);
+      return '<button class="btn lvb lv' + l + (outS && outS[0] === l ? " on" : "") + '" type="button" data-act="out" data-lv="' + l + '"' + (!free && !(outS && outS[0] === l) ? " disabled" : "") + ">" + LV[l].label + "</button>";
+    }).join("");
+    return '<div class="lvbtns">' + btns + "</div>" + (outS ? '<button class="btn" type="button" data-act="unout">Tirar da sala de fora</button>' : "") +
+      '<p class="legend">' + (outS ? slotLabel(outS) : "Ou arraste o bonequinho para uma cadeira de fora.") + "</p>";
+  }
   function countTo(el, to) {
     if (reduce) { el.textContent = to; return; }
     var t0 = null;
@@ -219,8 +282,29 @@
   }
 
   /* ---------------- sala ---------------- */
+  function renderOutRoom() {
+    var cfg = outCfg();
+    var rows = LVS.map(function (l) {
+      var n = cfg[l], slots = "";
+      for (var i = 0; i < n; i++) {
+        var id = l + i, occ = occupant(id), c = occ ? byId[occ] : null;
+        slots += '<div class="slot ' + (c ? "full" : "empty") + ' outs lv' + l + '" data-slot="' + id + '" data-g="' + l + '" role="group" aria-label="' + slotLabel(id) + (c ? ", ocupada por " + esc(c.name) : ", livre") + '">' +
+          '<div class="cw">' + window.chairSVG(l) + "</div>" +
+          '<div class="sitter" ' + (c ? 'data-drag="sitter" data-id="' + c.id + '"' : "") + ">" + (c ? window.dollSVG(c, "sit", "", { level: LV[l].mood }) : "") + "</div>" +
+          '<div class="tbl"></div>' +
+          '<div class="plate">' + (c ? "<span>" + esc(c.name) + '</span><span class="sc">' + c.total + " pts</span>" : "<b>" + (i + 1) + "</b>livre") + "</div></div>";
+      }
+      return '<div class="rowg out lv' + l + (outCount(l) >= n && n > 0 ? " full" : "") + '"><h3>' + LV[l].label + ' <span class="pill">' + outCount(l) + "/" + n + '</span></h3><p class="rsub">' + LV[l].sub + '</p><div class="seats">' + slots + "</div></div>";
+    }).join("");
+    $("#room").innerHTML =
+      '<div class="rhead"><div><h2>Sala de fora do clube</h2><p>' + cfg.total + " cadeiras de fora = " + C.length + " candidatos - " + totalChairs() + " cadeiras do clube. A escolha de dentro continua guardada.</p></div></div>" +
+      '<div class="rbody">' + (cfg.total ? rows : '<p class="legend">Há cadeiras do clube para todos os candidatos, então ninguém fica de fora.</p>') + "</div>";
+    fitRoom();
+  }
   function renderRoom() {
-    sanitizeSeats();
+    sanitizeSeats(); sanitizeOut();
+    $("#room").classList.toggle("outroom", state.view === "out");
+    if (state.view === "out") return renderOutRoom();
     var row = function (g) {
       var n = state.config[g], seated = seatedCount(g);
       var slots = "";
@@ -257,7 +341,7 @@
   }
   function nextWaiting(fromId) {
     var list = visibleList(); var i = list.findIndex(function (c) { return c.id === fromId; });
-    for (var k = 1; k <= list.length; k++) { var c = list[(i + k) % list.length]; if (c && !state.seats[c.id]) return c.id; }
+    for (var k = 1; k <= list.length; k++) { var c = list[(i + k) % list.length]; if (c && !isDecided(c)) return c.id; }
     return null;
   }
   function slotCenter(slot) {
@@ -280,7 +364,24 @@
     } else { renderQueue(); renderPanel(false); }
   }
   function seat(id, slot, from) {
-    state.seats[id] = slot; afterSeat(id, slot, from);
+    state.seats[id] = slot; delete state.out[id]; afterSeat(id, slot, from);
+  }
+  function placeOut(id, slot, from, moved) {
+    var c = byId[id]; state.out[id] = slot; persist();
+    renderCounters(); renderRoom();
+    var sit = $('.slot[data-slot="' + slot + '"] .sitter'); if (sit) sit.classList.add("new");
+    blip("sad"); toast(c.name.split(" ")[0] + (moved ? " mudou para: " : " foi para: ") + LV[slot[0]].label.toLowerCase(), "");
+    var nxt = nextWaiting(id);
+    if (state.selected === id && nxt && !moved) setTimeout(function () { select(nxt, true); }, 950);
+    else { renderQueue(); renderPanel(false); }
+  }
+  function unout(id) {
+    var c = byId[id]; delete state.out[id]; persist();
+    renderCounters(); renderRoom(); renderQueue(); renderPanel(false);
+    toast(c.name.split(" ")[0] + " saiu da sala de fora", "");
+  }
+  function setView(v) {
+    state.view = v; renderCounters(); renderRoom(); renderQueue(); renderPanel(false);
   }
   function unseat(id, silent) {
     var c = byId[id]; delete state.seats[id]; persist();
@@ -338,10 +439,9 @@
     document.body.appendChild(el); drag.clone = el;
     drag.el.classList.add("ghost");
     $$(".slot").forEach(function (s) {
-      var g = s.dataset.g, free = !occupant(s.dataset.slot);
-      var ok = g === c.gender && (free || (drag.kind === "sitter" && state.seats[drag.id] === s.dataset.slot));
-      s.classList.toggle("ok", g === c.gender && free);
-      s.classList.toggle("nope", g !== c.gender);
+      var g = s.dataset.g, free = !occupant(s.dataset.slot), outv = state.view === "out";
+      s.classList.toggle("ok", (outv || g === c.gender) && free);
+      s.classList.toggle("nope", !outv && g !== c.gender);
     });
     if (window.matchMedia("(max-width:980px)").matches) {
       var r = $("#room").getBoundingClientRect(); if (r.top > innerHeight * .6) window.scrollBy({ top: r.top - 80, behavior: "smooth" });
@@ -396,6 +496,16 @@
       var home = d.el.getBoundingClientRect(); var hp = { x: home.left + home.width / 2, y: home.top + home.height / 2 };
       flyTo(clone, { x: x, y: y }, hp, 1, restore);
     };
+    if (target && state.view === "out") {
+      var oslot = target.dataset.slot, oocc = occupant(oslot);
+      if (oocc && oocc !== d.id) return back("Essa cadeira já está ocupada por " + byId[oocc].name.split(" ")[0] + ".");
+      if (oocc === d.id) return back();
+      var oto = slotCenter(oslot) || { x: x, y: y };
+      return flyTo(clone, { x: x, y: y }, oto, Math.max(.7, (oto.w || 96) / 104), function () {
+        if (clone) clone.remove(); d.el.classList.remove("ghost"); cleanupDrag();
+        placeOut(d.id, oslot, oto, d.kind === "sitter" || !!state.out[d.id]);
+      });
+    }
     if (target) {
       var g = target.dataset.g, slot = target.dataset.slot, occ = occupant(slot);
       if (g !== c.gender) {
@@ -416,7 +526,7 @@
     if (d.kind === "sitter") {
       var el = document.elementFromPoint(x, y);
       var inPanel = el && el.closest && (el.closest("#panel") || el.closest(".strip"));
-      if (inPanel) { restore(); return unseat(d.id); }
+      if (inPanel) { restore(); return state.view === "out" ? unout(d.id) : unseat(d.id); }
     }
     back();
   }
@@ -442,6 +552,21 @@
       return;
     }
     if (t.dataset.act === "unseat") return unseat(state.selected);
+    if (t.dataset.act === "unout") return unout(state.selected);
+    if (t.dataset.act === "out") {
+      var oc = byId[state.selected], lv = t.dataset.lv, cur = state.out[oc.id];
+      if (cur && cur[0] === lv) return;
+      var os = freeOut(lv);
+      if (!os) { toast("Todas as cadeiras de " + LV[lv].label.toLowerCase() + " estão ocupadas.", "bad"); blip("bad"); return; }
+      var stg = $(".stage"), rr = stg ? stg.getBoundingClientRect() : null;
+      if (rr && !reduce && stg.animate) {
+        var cl = document.createElement("div"); cl.className = "dragclone"; cl.innerHTML = window.dollSVG(oc, "stand"); document.body.appendChild(cl);
+        var fr = { x: rr.left + rr.width / 2, y: rr.top + rr.height / 2 }, tt = slotCenter(os) || fr;
+        flyTo(cl, fr, tt, .8, function () { cl.remove(); placeOut(oc.id, os, tt, !!cur); });
+      } else placeOut(oc.id, os, null, !!cur);
+      return;
+    }
+    if (t.id === "btnOut") return setView(state.view === "out" ? "in" : "out");
     if (t.dataset.filter) { state.filter = t.dataset.filter; persist(); renderQueue(); renderPanel(false); return; }
     if (t.dataset.sort) { state.sort = t.dataset.sort; persist(); renderQueue(); renderPanel(false); return; }
   });
@@ -463,7 +588,7 @@
       resetArmed = setTimeout(disarm, 3200); return;
     }
     clearTimeout(resetArmed); disarm();
-    state.seats = {}; persist(); renderCounters(); renderRoom(); renderQueue(); renderPanel(false); toast("Tudo limpo. Pode começar de novo.", "");
+    state.seats = {}; state.out = {}; state.view = "in"; persist(); renderCounters(); renderRoom(); renderQueue(); renderPanel(false); toast("Tudo limpo. Pode começar de novo.", "");
   });
   function disarm() { resetArmed = null; var b = $("#btnReset"); b.classList.remove("confirm"); b.querySelector("span").textContent = "Recomeçar"; }
 
@@ -511,11 +636,11 @@
   });
 
   /* ---------------- início ---------------- */
-  sanitizeSeats();
+  sanitizeSeats(); sanitizeOut();
   if (!state.selected || !byId[state.selected]) {
     var first = visibleList().filter(function (c) { return !state.seats[c.id]; })[0] || C[0]; state.selected = first.id;
   }
   renderCounters(); renderQueue(); renderPanel(true); renderRoom();
   // para testes e depuração
-  window.__skema = { state: state, seat: function (id) { var c = byId[id]; var s = freeSlot(c.gender); if (s) { state.seats[id] = s; persist(); renderCounters(); renderRoom(); renderQueue(); renderPanel(false); } }, approved: approved };
+  window.__skema = { state: state, out: function (id, l) { var s = freeOut(l); if (s) { state.out[id] = s; persist(); renderCounters(); renderRoom(); renderQueue(); renderPanel(false); } }, setView: setView, seat: function (id) { var c = byId[id]; var s = freeSlot(c.gender); if (s) { state.seats[id] = s; persist(); renderCounters(); renderRoom(); renderQueue(); renderPanel(false); } }, approved: approved };
 })();

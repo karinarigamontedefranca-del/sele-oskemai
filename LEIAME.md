@@ -12,3 +12,11 @@ Tudo está em `js/data.js`: notas (`scores`), justificativas (`why`), resumo (`s
 
 ## Cadeiras
 Padrão: 4 das meninas e 6 dos meninos. Mude na engrenagem do topo, sem mexer em código.
+
+
+## Sala de fora do clube
+
+- Botão "Sala de fora do clube" no topo alterna entre as duas salas. A escolha de dentro nunca é apagada.
+- Cadeiras de fora = candidatos - cadeiras do clube, divididas em Talvez fora, Meio fora e Muito fora (com 12 de fora: 5, 4 e 3).
+- Quem senta dentro do clube não pode ir para a sala de fora; quem está fora aparece com um × na fila.
+- Para incluir mais candidatos, edite js/data.js.

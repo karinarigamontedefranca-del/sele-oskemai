@@ -20,6 +20,8 @@
     leaf: '<path d="M0-13 3-6 9-8 6-1 12 2 5 4 6 11 0 9-6 11-5 4-12 2-6-1-9-8-3-6Z" fill="' + RED + '" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>',
     plane: '<path d="M-13-2 13-10 5 11 0 3Z" fill="#fff" stroke="' + LILAC + '" stroke-width="2" stroke-linejoin="round"/><path d="M0 3 13-10" stroke="' + LILAC + '" stroke-width="1.6"/><circle cx="-11" cy="8" r="2.6" fill="' + RED + '"/>',
     flow: '<rect x="-13" y="-11" width="9" height="7" rx="2" fill="' + LILAC + '" stroke="#fff" stroke-width="1.6"/><rect x="4" y="-11" width="9" height="7" rx="2" fill="' + LILAC + '" stroke="#fff" stroke-width="1.6"/><rect x="-4.5" y="5" width="9" height="7" rx="2" fill="' + RED + '" stroke="#fff" stroke-width="1.6"/><path d="M-8.5-4V0H0V5M8.5-4V0H0" fill="none" stroke="#fff" stroke-width="1.8"/>',
+    play: '<rect x="-12" y="-9" width="24" height="18" rx="5" fill="' + LILAC + '" stroke="#fff" stroke-width="2"/><path d="M-3-5 6 0-3 5Z" fill="#fff"/><circle cx="9" cy="-6" r="2" fill="' + RED + '"/>',
+    code: '<path d="M-4-7-11 0-4 7M4-7 11 0 4 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2-9-2 9" stroke="' + LILAC + '" stroke-width="2.6" stroke-linecap="round"/><circle cx="11" cy="-9" r="2.4" fill="' + RED + '"/>',
     briefcase: '<rect x="-12" y="-5" width="24" height="16" rx="3" fill="' + LILAC + '" stroke="#fff" stroke-width="2"/><path d="M-4-5v-4h8v4M-12 2H12" fill="none" stroke="#fff" stroke-width="2"/><rect x="-2" y="-0.5" width="4" height="5.5" rx="1" fill="' + RED + '"/>'
   };
 
@@ -56,7 +58,7 @@
     }
   }
 
-  function inner(c, withProp) {
+  function inner(c, withProp, mood) {
     var l = c.look, outfit = l.outfit, hc = l.hairColor;
     var s = "";
     s += '<ellipse cx="60" cy="164" rx="30" ry="5" fill="rgba(0,0,0,.35)"/>';
@@ -74,9 +76,26 @@
     // cabeça
     s += '<circle cx="60" cy="40" r="23" fill="' + FACE + '"/>';
     s += hairFront(l.hair, hc, outfit);
-    s += '<circle cx="51.5" cy="42" r="2.7" fill="' + INK + '"/><circle cx="68.5" cy="42" r="2.7" fill="' + INK + '"/>';
-    s += '<path d="M52 50Q60 57 68 50" fill="none" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>';
-    s += '<circle cx="45.5" cy="49" r="3.4" fill="#C9B6FF" opacity=".6"/><circle cx="74.5" cy="49" r="3.4" fill="#C9B6FF" opacity=".6"/>';
+    if (mood) {
+      var TEAR = "#8FD3FF";
+      s += '<circle cx="51.5" cy="43" r="2.7" fill="' + INK + '"/><circle cx="68.5" cy="43" r="2.7" fill="' + INK + '"/>';
+      s += '<path d="M45 39.5 57 35.5M75 39.5 63 35.5" fill="none" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>';
+      s += mood.level >= 3
+        ? '<ellipse cx="60" cy="54" rx="5.5" ry="4" fill="' + INK + '"/>'
+        : '<path d="M52 55Q60 48.5 68 55" fill="none" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>';
+      s += '<circle cx="45.5" cy="49" r="3.4" fill="#C9B6FF" opacity=".45"/><circle cx="74.5" cy="49" r="3.4" fill="#C9B6FF" opacity=".45"/>';
+      var tear = function (x, y, d) { return '<g transform="translate(' + x + ' ' + y + ')"><path class="tear" style="animation-delay:' + d + 's" d="M0-5.5C4 0 5.5 4 0 6.6-5.5 4-4 0 0-5.5Z" fill="' + TEAR + '"/></g>'; };
+      s += tear(49, 49, 0);
+      if (mood.level >= 2) s += tear(71, 49, 0.55);
+      if (mood.level >= 3) {
+        s += '<path d="M49 47V60M71 47V60" stroke="' + TEAR + '" stroke-width="2" stroke-linecap="round" opacity=".5"/>';
+        s += tear(47, 52, 0.3) + tear(73, 52, 0.85);
+      }
+    } else {
+      s += '<circle cx="51.5" cy="42" r="2.7" fill="' + INK + '"/><circle cx="68.5" cy="42" r="2.7" fill="' + INK + '"/>';
+      s += '<path d="M52 50Q60 57 68 50" fill="none" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>';
+      s += '<circle cx="45.5" cy="49" r="3.4" fill="#C9B6FF" opacity=".6"/><circle cx="74.5" cy="49" r="3.4" fill="#C9B6FF" opacity=".6"/>';
+    }
     if (l.glasses) {
       s += '<g fill="none" stroke="' + INK + '" stroke-width="1.8"><circle cx="51.5" cy="42" r="6.6"/><circle cx="68.5" cy="42" r="6.6"/><path d="M58 42h4"/></g>';
     }
@@ -90,18 +109,21 @@
     pose: "stand" (corpo inteiro), "sit" (da cabeça até a cintura, para ficar atrás da mesa)
           "head" (avatar pequeno)
   */
-  window.dollSVG = function (c, pose, cls) {
+  window.dollSVG = function (c, pose, cls, mood) {
     pose = pose || "stand";
     var vb = "-8 0 136 172", withProp = true;
     if (pose === "sit") vb = "-8 4 136 118";
     if (pose === "head") { vb = "20 6 80 76"; withProp = false; }
-    return '<svg class="doll ' + (cls || "") + '" viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bonequinho de ' + c.name + '" focusable="false">' + inner(c, withProp) + "</svg>";
+    return '<svg class="doll ' + (cls || "") + '" viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bonequinho de ' + c.name + '" focusable="false">' + inner(c, withProp, mood) + "</svg>";
   };
 
+  var CHAIR = {
+    F: ["#A98BFF", "#D9CBFF"], M: ["#4A1FC9", "#7F57FF"],
+    T: ["#7B71B0", "#B9B1DE"], E: ["#4F4A78", "#8B86B5"], U: ["#38334F", "#9A5566"]
+  };
   window.chairSVG = function (kind) {
-    // kind: "F" ou "M"
-    var back = kind === "F" ? "#A98BFF" : "#4A1FC9";
-    var edge = kind === "F" ? "#D9CBFF" : "#7F57FF";
+    var back = (CHAIR[kind] || CHAIR.M)[0];
+    var edge = (CHAIR[kind] || CHAIR.M)[1];
     return '<svg class="chair" viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
       '<rect x="14" y="6" width="92" height="118" rx="24" fill="' + back + '"/>' +
       '<rect x="14" y="6" width="92" height="118" rx="24" fill="none" stroke="' + edge + '" stroke-width="3"/>' +

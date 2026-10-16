@@ -31,6 +31,9 @@
       <button class="btn icon" id="btnConfig" type="button" aria-label="Configurar cadeiras" title="Cadeiras">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
       </button>
+      <button class="btn outbtn" id="btnOut" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 16c1.2-1.6 2.5-2.2 4-2.2s2.8.6 4 2.2M9 9.5h.01M15 9.5h.01"/></svg><span>Sala de fora do clube</span>
+      </button>
       <button class="btn danger" id="btnReset" type="button">
         <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span>Recomeçar</span>
       </button>
@@ -44,7 +47,8 @@
     <div class="filters" role="group" aria-label="Filtrar">
       <button type="button" data-filter="all" aria-pressed="true">Todos</button>
       <button type="button" data-filter="wait" aria-pressed="false">Aguardando</button>
-      <button type="button" data-filter="in" aria-pressed="false">Sentados</button>
+      <button type="button" data-filter="in" aria-pressed="false">Dentro</button>
+      <button type="button" data-filter="out" aria-pressed="false">Fora</button>
     </div>
     <div class="sorts" role="group" aria-label="Ordenar">
       <button type="button" data-sort="az" aria-pressed="true">A a Z</button>

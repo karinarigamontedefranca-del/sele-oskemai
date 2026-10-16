@@ -204,6 +204,45 @@ body.dragging *{cursor:grabbing!important}
 .dragclone .doll{width:100%;height:auto;display:block}
 .ghost{opacity:.25!important}
 
+/* ---------- sala de fora do clube ---------- */
+.outbtn[aria-pressed="true"]{background:rgba(120,130,170,.28);border-color:#9AA3D0}
+.qi.outc .av{filter:saturate(.45)}
+.qi .xmark{position:absolute;top:2px;right:6px;width:17px;height:17px;border-radius:50%;background:var(--red);color:#fff;font-weight:800;font-size:.8rem;line-height:17px;text-align:center;display:none}
+.qi.outc .xmark{display:block}
+.qi.outc.lvT .xmark{background:#B8A5FF;color:#26068D}
+.qi.outc.lvE .xmark{background:#E27C8A}
+.gtag.in{border-color:var(--ok);color:var(--ok)}
+.gtag.outl{border-color:#9AA3D0;color:#C9D0F5}
+.gtag.outl.lvU{border-color:var(--red);color:#FF9AA5}
+.lvbtns{display:grid;gap:6px;width:100%}
+.lvb{justify-content:center;width:100%}
+.lvb.lvT{border-color:rgba(184,165,255,.6)}
+.lvb.lvE{border-color:rgba(226,124,138,.6)}
+.lvb.lvU{border-color:rgba(239,0,27,.7)}
+.lvb.on{background:rgba(255,255,255,.22)}
+.stage.outd{border-style:solid;border-color:#9AA3D0}
+.stage.outd .grab{background:#5b5f86;animation:none}
+body.view-out .counters .cnt .bar i{background:linear-gradient(90deg,#4F4A78,#9AA3D0)}
+.room.outroom{background:
+  radial-gradient(70% 50% at 50% 0%,rgba(110,120,170,.28),transparent 70%),
+  linear-gradient(180deg,rgba(40,44,80,.55),rgba(23,23,31,.3) 60%),
+  linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.015))}
+.room.outroom::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background:repeating-linear-gradient(105deg,transparent 0 14px,rgba(170,185,255,.22) 14px 15px);
+  background-size:60px 60px;animation:rain 1.1s linear infinite}
+@keyframes rain{to{background-position:-18px 60px}}
+.rowg.out h3{color:#C9D0F5}
+.rowg.out.lvU h3{color:#FFB0B9}
+.rowg.out.lvT h3{color:#D9CBFF}
+.rsub{font-size:.72rem;color:var(--mist);margin-top:-2px;text-align:center}
+.slot.outs .tbl{background:linear-gradient(180deg,#4a4d73,#34365a 70%,#252742);border-top-color:#9AA3D0}
+.slot.outs.lvU .tbl{border-top-color:#9A5566}
+.slot.outs.full .plate{background:linear-gradient(120deg,rgba(80,86,130,.85),rgba(40,42,80,.9))}
+.slot.outs .sitter .doll{filter:saturate(.7)}
+.tear{transform-box:fill-box;transform-origin:50% 0;animation:tear 1.7s ease-in infinite;opacity:0}
+@keyframes tear{0%{transform:translateY(-2px) scale(.5);opacity:0}15%{opacity:1;transform:translateY(0) scale(1)}85%{opacity:.9}100%{transform:translateY(15px) scale(.9);opacity:0}}
+.stage.outd .doll{animation:none}
+
 /* ---------- avisos ---------- */
 .toasts{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:grid;gap:8px;z-index:1200;width:min(92vw,460px);pointer-events:none}
 .toast{padding:12px 16px;border-radius:14px;background:rgba(31,30,45,.96);border:1px solid var(--line);font-size:.88rem;font-weight:600;text-align:center;box-shadow:0 20px 50px -12px rgba(0,0,0,.7);animation:toastIn .35s var(--ease) both}
@@ -266,6 +305,9 @@ dialog::backdrop{background:rgba(10,8,25,.7);backdrop-filter:blur(4px)}
   .dollcol{position:static;grid-template-columns:150px 1fr;justify-items:stretch;align-items:start}
   .dollcol .stage{grid-row:1/4}
   .logo img{height:28px}
+  .cnt{padding:7px 8px}
+  .cnt .l{flex-wrap:wrap;gap:0 6px;font-size:.58rem;letter-spacing:.03em}
+  .cnt .n{font-size:1rem}
   .slot{transform-origin:top center}
 }
 @media (prefers-reduced-motion:reduce){
